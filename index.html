@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#5865f2">
+<meta name="description" content="FlexiBlock — an adaptive daily planner that rebuilds your schedule when life changes.">
+<title>FlexiBlock — Adaptive Planner</title>
+<style>
+:root{
+ --bg:#f6f7fb;--card:#fff;--text:#171a2b;--muted:#747a8e;--line:#e5e7ef;
+ --primary:#5865f2;--primary-dark:#454fd1;--soft:#eef0ff;--danger:#d94c4c;
+ --success:#168357;--warning:#a96a08;--shadow:0 12px 32px rgba(30,35,70,.08);--r:18px;
+}
+*{box-sizing:border-box}
+html{min-width:0}
+body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);
+ font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+ overflow-x:hidden}
+button,input,select{font:inherit;max-width:100%}
+button{cursor:pointer}
+button:disabled{opacity:.5;cursor:not-allowed}
+.hidden{display:none!important}
+.app{min-height:100vh;padding-bottom:88px}
+.topbar{height:64px;background:rgba(255,255,255,.96);backdrop-filter:blur(12px);
+ border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;
+ padding:0 16px;position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:9px;font-weight:900;font-size:17px;min-width:0}
+.logo{width:30px;height:30px;flex:0 0 30px;border-radius:9px;background:#171a2b;color:#fff;display:grid;place-items:center}
+.top-actions{display:flex;gap:7px;flex:0 0 auto}
+.icon-btn{width:34px;height:34px;border:1px solid var(--line);background:#fff;border-radius:10px;color:#646a7d}
+main{width:min(680px,100%);margin:auto;padding:18px}
+.screen{animation:fade .18s ease;min-width:0}
+@keyframes fade{from{opacity:.35;transform:translateY(5px)}to{opacity:1;transform:none}}
+.hero{background:linear-gradient(135deg,#5966f3,#363fba);color:#fff;border-radius:20px;padding:21px;
+ box-shadow:var(--shadow);margin-bottom:18px}
+.eyebrow{font-size:10px;letter-spacing:.12em;font-weight:900;opacity:.78;text-transform:uppercase}
+.hero h1{font-size:clamp(22px,7vw,27px);line-height:1.12;margin:7px 0 10px}
+.hero p{font-size:12px;line-height:1.55;margin:0;opacity:.92}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:17px 2px 10px}
+.section-head h2{font-size:15px;margin:0}
+.link-btn{background:none;border:0;color:var(--primary);font-size:12px;font-weight:800;padding:6px 2px}
+.task-list{display:grid;gap:9px}
+.task-card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:12px;
+ display:flex;gap:10px;align-items:flex-start;box-shadow:0 4px 15px rgba(30,35,60,.035);min-width:0}
+.dot{width:9px;height:9px;border-radius:50%;margin-top:5px;flex:0 0 9px}
+.dot.high{background:#f15b4f}.dot.medium{background:#e6a322}.dot.low{background:#16a27a}
+.task-main{min-width:0;flex:1}
+.task-title{font-size:13px;font-weight:800;overflow-wrap:anywhere}
+.task-meta{font-size:10px;color:var(--muted);margin-top:4px;line-height:1.4;overflow-wrap:anywhere}
+.task-actions{display:flex;gap:5px;margin-top:9px;flex-wrap:wrap}
+.small-btn{background:#f5f6fa;border:1px solid var(--line);padding:6px 9px;border-radius:8px;font-size:10px;font-weight:800;color:#50566a}
+.small-btn.danger{color:var(--danger)}
+.priority{font-size:9px;font-weight:900;border:1px solid var(--line);padding:4px 7px;border-radius:8px;text-transform:lowercase;flex:0 0 auto}
+.primary,.secondary,.danger-btn{width:100%;border-radius:11px;padding:12px 15px;font-weight:850}
+.primary{background:var(--primary);color:#fff;border:1px solid var(--primary);box-shadow:0 7px 16px rgba(88,101,242,.22)}
+.secondary{background:#fff;color:var(--primary);border:1px solid #cfd3ff}
+.danger-btn{background:#fff;color:var(--danger);border:1px solid #f0c6c6}
+.form-card,.panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:17px;box-shadow:var(--shadow);min-width:0}
+label{display:block;font-size:11px;font-weight:850;margin:0 0 7px}
+.field{margin-bottom:13px}
+input,select{width:100%;border:1px solid #d9dce7;background:#fff;border-radius:10px;padding:11px 12px;
+ outline:none;color:var(--text);min-width:0}
+input:focus,select:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(88,101,242,.10)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.back-row{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:13px}
+.page-title{font-size:20px;font-weight:900;margin:0;overflow-wrap:anywhere}
+.info{background:#f1f3ff;border:1px solid #dce0ff;color:#444b78;border-radius:13px;padding:11px;
+ font-size:10px;line-height:1.5;margin-bottom:12px;overflow-wrap:anywhere}
+.timeline{display:grid;gap:8px}
+.time-row{display:grid;grid-template-columns:58px minmax(0,1fr);gap:8px;align-items:start}
+.time-label{font-size:9px;color:var(--muted);font-weight:800;padding-top:13px;text-align:right;white-space:nowrap}
+.block{background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px;min-width:0;overflow:hidden}
+.block.clickable{cursor:pointer}
+.block.missed{border-color:#efb1b1;background:#fff7f7}
+.block-title{font-size:12px;font-weight:850;overflow-wrap:anywhere}
+.block-meta{font-size:9px;color:var(--muted);margin-top:4px;line-height:1.45;overflow-wrap:anywhere}
+.status-pill{display:inline-block;font-size:8px;font-weight:950;padding:4px 6px;border-radius:7px;margin-top:7px;background:#f0f1f6;color:#5e6475}
+.status-pill.high{background:#fff0ef;color:#c74444}.status-pill.done{background:#eaf8f1;color:#187b50}
+.recovery-hero{background:linear-gradient(135deg,#f0f2ff,#fff);border:1px solid #dfe2ff;border-radius:18px;padding:16px;margin-bottom:12px}
+.recovery-hero h2{margin:5px 0;font-size:18px;line-height:1.25}
+.metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}
+.metric{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center;min-width:0}
+.metric strong{display:block;font-size:18px}.metric span{font-size:8px;color:var(--muted);font-weight:900;text-transform:uppercase}
+.reason-list{display:grid;gap:8px}
+.reason{background:#fff;border:1px solid var(--line);border-radius:13px;padding:11px;min-width:0}
+.reason-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}
+.reason-name{font-size:11px;font-weight:850;overflow-wrap:anywhere}
+.tag{font-size:8px;font-weight:950;padding:4px 6px;border-radius:7px;white-space:nowrap;flex:0 0 auto}
+.tag.protected{background:#eaf8f1;color:#16734c}.tag.rescheduled{background:#fff5df;color:#a96a08}
+.tag.missed{background:#fff0ef;color:#c74444}
+.score{font-size:9px;color:var(--muted);margin-top:5px;overflow-wrap:anywhere}
+.why{font-size:9px;line-height:1.5;color:#5f6475;margin-top:6px;overflow-wrap:anywhere}
+.conflict{border:1px solid #f0d29d;background:#fffaf0;color:#6e511e;border-radius:13px;padding:12px;
+ font-size:10px;line-height:1.5;overflow-wrap:anywhere}
+.profile{display:grid;gap:12px}
+.profile-card{display:flex;align-items:center;gap:12px;min-width:0}
+.avatar{width:48px;height:48px;flex:0 0 48px;border-radius:15px;background:var(--soft);color:var(--primary);
+ display:grid;place-items:center;font-weight:950;font-size:18px}
+.profile-name{font-weight:900;overflow-wrap:anywhere}.profile-sub{font-size:10px;color:var(--muted);margin-top:3px}
+.setting-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.setting-row:last-child{border-bottom:0}.setting-label{font-size:12px;font-weight:800}.setting-value{font-size:10px;color:var(--muted);text-align:right;overflow-wrap:anywhere}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:76px;background:rgba(255,255,255,.97);
+ backdrop-filter:blur(14px);border-top:1px solid var(--line);display:flex;justify-content:center;z-index:30;
+ padding-bottom:env(safe-area-inset-bottom)}
+.nav-inner{width:min(680px,100%);display:grid;grid-template-columns:repeat(3,1fr)}
+.nav-item{background:none;border:0;color:#8a8fa1;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;gap:4px;font-size:10px;font-weight:850;min-width:0}
+.nav-item.active{color:var(--primary)}.nav-icon{font-size:19px;line-height:1}
+.toast{position:fixed;left:50%;bottom:94px;transform:translate(-50%,15px);background:#171a2b;color:#fff;
+ padding:10px 14px;border-radius:11px;font-size:11px;font-weight:800;opacity:0;pointer-events:none;
+ transition:.2s;z-index:80;max-width:calc(100vw - 28px);text-align:center;white-space:normal}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.modal-wrap{position:fixed;inset:0;background:rgba(15,18,35,.45);display:grid;place-items:center;padding:16px;z-index:60}
+.modal{width:min(430px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:20px;padding:18px;box-shadow:0 25px 70px rgba(0,0,0,.2)}
+.modal h3{margin:0 0 7px;font-size:18px}.modal p{font-size:10px;color:var(--muted);line-height:1.5}
+.modal-actions{display:flex;gap:8px}.modal-actions button{flex:1}
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:18px;background:linear-gradient(145deg,#f7f8fc,#eef0ff)}
+.login-card{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:24px;padding:22px;
+ box-shadow:0 20px 60px rgba(38,45,92,.12)}
+.login-brand{display:flex;align-items:center;gap:10px;font-size:19px;font-weight:950;margin-bottom:23px}
+.login-logo{width:38px;height:38px;border-radius:12px;background:#171a2b;color:#fff;display:grid;place-items:center}
+.login-card h1{font-size:25px;margin:0 0 7px}.login-card .lead{font-size:11px;color:var(--muted);line-height:1.5;margin-bottom:19px}
+.switch{display:flex;background:#f3f4f8;border-radius:10px;padding:3px;margin-bottom:17px}
+.switch button{flex:1;border:0;padding:9px;border-radius:8px;background:transparent;color:var(--muted);font-size:11px;font-weight:850}
+.switch button.active{background:#fff;color:var(--text);box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.demo-note{font-size:9px;color:var(--muted);line-height:1.45;text-align:center;margin-top:13px}
+.empty{padding:24px;text-align:center;color:var(--muted);font-size:11px;background:#fff;border:1px dashed #d7dae5;border-radius:15px}
+.focus-card{background:#171a2b;color:#fff;border-radius:20px;padding:22px;text-align:center}
+.ring{width:min(210px,58vw);aspect-ratio:1;border-radius:50%;margin:18px auto;display:grid;place-items:center;
+ background:conic-gradient(var(--primary) calc(var(--progress)*1%),#343747 0);position:relative}
+.ring::before{content:"";position:absolute;inset:10px;border-radius:50%;background:#171a2b}
+.ring-content{position:relative;z-index:1}.timer{font-size:46px;font-weight:950;letter-spacing:.03em}
+.focus-card p{font-size:11px;color:#c8cad5;line-height:1.5}.focus-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.focus-actions .secondary{color:#171a2b}.focus-actions .reset{grid-column:1/-1;background:transparent;color:#fff;border:1px solid #4a4d5c}
+.conflict-actions{margin-top:9px}
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:360px){
+ main{padding:14px}.hero{padding:18px}.hero h1{font-size:21px}
+ .form-row,.settings-grid{grid-template-columns:1fr}
+ .time-row{grid-template-columns:51px minmax(0,1fr);gap:6px}.time-label{font-size:8px}
+ .metrics{gap:5px}.metric{padding:8px 5px}.metric strong{font-size:16px}.metric span{font-size:7px}
+ .topbar{padding:0 12px}.brand{font-size:15px}
+}
+@media(min-width:680px){main{padding-top:25px}.bottom-nav{height:80px}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+<div id="modalRoot"></div>
+
+<script>
+"use strict";
+
+/* ============================================================
+ FLEXIBLOCK FINAL
+ - LocalStorage persistence
+ - Modular CRUD/data layer
+ - Mock email/password authentication
+ - Dynamic active hours
+ - Adaptive recovery engine
+ - Explainable recovery scores
+ - Focus timer with progress ring
+ - Single-file/mobile-first architecture
+ ============================================================ */
+
+const STORAGE_KEY = "flexiblock_db_v2";
+const SESSION_KEY = "flexiblock_session_v2";
+const DEFAULT_SETTINGS = {dayStart:"09:00", dayEnd:"22:00"};
+const MIN_WORK_MINUTES = 60;
+
+const $ = (s,r=document)=>r.querySelector(s);
+const esc = v => String(v ?? "").replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+const uid = prefix => prefix+"_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8);
+const isoNow = () => new Date().toISOString();
+
+function freshDB(){
+ return {version:2,users:{}};
+}
+function loadDB(){
+ try{
+   const parsed=JSON.parse(localStorage.getItem(STORAGE_KEY));
+   return parsed && parsed.users ? parsed : freshDB();
+ }catch(e){ return freshDB(); }
+}
+function writeDB(db){ localStorage.setItem(STORAGE_KEY,JSON.stringify(db)); }
+function getSession(){ return localStorage.getItem(SESSION_KEY); }
+function setSession(email){ localStorage.setItem(SESSION_KEY,email); }
+function clearSession(){ localStorage.removeItem(SESSION_KEY); }
+
+function defaultTasks(userId){
+ const now=isoNow();
+ return [
+  {id:uid("task"),user_id:userId,title:"Math Assignment",duration:60,priority:"high",deadline:"Today",status:"pending",start_time:null,created_at:now},
+  {id:uid("task"),user_id:userId,title:"Study Biology",duration:90,priority:"medium",deadline:"Today",status:"pending",start_time:null,created_at:now},
+  {id:uid("task"),user_id:userId,title:"Build Hackathon Project",duration:120,priority:"high",deadline:"Today",status:"pending",start_time:null,created_at:now},
+  {id:uid("task"),user_id:userId,title:"Exercise",duration:30,priority:"low",deadline:"Today",status:"pending",start_time:null,created_at:now}
+ ];
+}
+
+/* ---------- Database adapter: backend-ready CRUD ---------- */
+const db = {
+ getUser(email=getSession()){
+   if(!email)return null;
+   const data=loadDB(); return data.users[email]||null;
+ },
+ createUser(email,password){
+   const data=loadDB();
+   if(data.users[email]) throw new Error("ACCOUNT_EXISTS");
+   const userId=uid("user");
+   data.users[email]={
+     id:userId,email,password,
+     created_at:isoNow(),
+     settings:{...DEFAULT_SETTINGS},
+     tasks:defaultTasks(userId),
+     schedule:[],
+     last_plan_at:null
+   };
+   writeDB(data); return data.users[email];
+ },
+ authenticate(email,password){
+   const u=this.getUser(email);
+   if(!u || u.password!==password) throw new Error("INVALID_LOGIN");
+   return u;
+ },
+ getTasks(userId=getSession()){
+   const u=this.getUser(userId); return u ? [...u.tasks] : [];
+ },
+ getTask(id){
+   return this.getTasks().find(t=>t.id===id)||null;
+ },
+ saveTask(task){
+   const email=getSession(); const data=loadDB(); const u=data.users[email];
+   if(!u)throw new Error("NO_SESSION");
+   const normalized={
+     id:task.id||uid("task"),user_id:u.id,title:String(task.title).trim(),
+     duration:Math.max(5,Math.min(480,Number(task.duration)||30)),
+     priority:["high","medium","low"].includes(task.priority)?task.priority:"medium",
+     deadline:["Today","Tomorrow","This week"].includes(task.deadline)?task.deadline:"Today",
+     status:task.status||"pending",start_time:task.start_time||null,
+     created_at:task.created_at||isoNow()
+   };
+   const i=u.tasks.findIndex(x=>x.id===normalized.id);
+   if(i>=0)u.tasks[i]=normalized;else u.tasks.push(normalized);
+   u.schedule=[];u.last_plan_at=null;
+   u.tasks=u.tasks.map(t=>t.status==="planned"?{...t,status:"pending",start_time:null}:t);
+   writeDB(data);return normalized;
+ },
+ updateTask(id,patch){
+   const email=getSession();const data=loadDB();const u=data.users[email];
+   if(!u)throw new Error("NO_SESSION");
+   const i=u.tasks.findIndex(x=>x.id===id);if(i<0)throw new Error("TASK_NOT_FOUND");
+   const existing=u.tasks[i];
+   const normalized={
+     ...existing,...patch,id, user_id:u.id,
+     title:String((patch.title??existing.title)||"").trim(),
+     duration:Math.max(5,Math.min(480,Number(patch.duration??existing.duration)||30)),
+     priority:["high","medium","low"].includes(patch.priority??existing.priority)?(patch.priority??existing.priority):"medium",
+     deadline:["Today","Tomorrow","This week"].includes(patch.deadline??existing.deadline)?(patch.deadline??existing.deadline):"Today",
+     status:patch.status??existing.status,
+     start_time:patch.start_time??existing.start_time,
+     created_at:existing.created_at||isoNow()
+   };
+   u.tasks[i]=normalized;writeDB(data);return normalized;
+ },
+ deleteTask(id){
+   const email=getSession();const data=loadDB();const u=data.users[email];
+   if(!u)throw new Error("NO_SESSION");
+   u.tasks=u.tasks.filter(t=>t.id!==id);
+   u.schedule=u.schedule.filter(s=>s.task_id!==id);
+   writeDB(data);return true;
+ },
+ getSchedule(){
+   const u=this.getUser();return u ? [...u.schedule] : [];
+ },
+ saveSchedule(schedule){
+   const email=getSession();const data=loadDB();const u=data.users[email];
+   if(!u)throw new Error("NO_SESSION");
+   u.schedule=schedule.map(x=>({...x}));
+   u.last_plan_at=isoNow();writeDB(data);return u.schedule;
+ },
+ syncTaskSchedule(schedule){
+   const email=getSession();const data=loadDB();const u=data.users[email];
+   if(!u)throw new Error("NO_SESSION");
+   const byTask=new Map((schedule||[]).map(x=>[x.task_id,x]));
+   u.tasks=u.tasks.map(t=>{
+     const block=byTask.get(t.id);
+     if(block)return {...t,status:"planned",start_time:block.start_time};
+     if(t.status==="planned")return {...t,status:"pending",start_time:null};
+     return t;
+   });
+   writeDB(data);return u.tasks;
+ },
+ getSettings(){
+   const u=this.getUser();return u ? {...DEFAULT_SETTINGS,...(u.settings||{})} : {...DEFAULT_SETTINGS};
+ },
+ saveSettings(settings){
+   const email=getSession();const data=loadDB();const u=data.users[email];
+   if(!u)throw new Error("NO_SESSION");
+   u.settings={...DEFAULT_SETTINGS,...settings};
+   // A changed planning window invalidates the old day's schedule.
+   u.schedule=[];u.last_plan_at=null;
+   u.tasks=u.tasks.map(t=>t.status==="planned"?{...t,status:"pending",start_time:null}:t);
+   writeDB(data);return u.settings;
+ }
+};
+
+function parseTime(value){
+ const [h,m]=String(value||"09:00").split(":").map(Number);
+ return Math.max(0,Math.min(1439,(h||0)*60+(m||0)));
+}
+function formatTimeInput(min){
+ const h=Math.floor(min/60),m=min%60;
+ return String(h).padStart(2,"0")+":"+String(m).padStart(2,"0");
+}
+function timeLabel(min){
+ const h=Math.floor(min/60),m=min%60,ap=h>=12?"PM":"AM",hh=h%12||12;
+ return `${hh}:${String(m).padStart(2,"0")} ${ap}`;
+}
+function priorityValue(p){return p==="high"?3:p==="medium"?2:1}
+function deadlineValue(d){return d==="Today"?3:d==="Tomorrow"?2:1}
+function totalDuration(tasks){return tasks.reduce((n,t)=>n+Number(t.duration||0),0)}
+function settingsBounds(){
+ const s=db.getSettings(),start=parseTime(s.dayStart),end=parseTime(s.dayEnd);
+ return start<end?{start,end}:{start:540,end:1320};
+}
+function toast(msg){
+ const e=$("#toast");e.textContent=msg;e.classList.add("show");
+ clearTimeout(toast.timer);toast.timer=setTimeout(()=>e.classList.remove("show"),2300);
+}
+
+/* ---------- App state ---------- */
+let state={
+ screen:"home",authMode:"login",editingId:null,missedId:null,recovery:null,
+ focusSeconds:600,focusTimer:null,focusRunning:false
+};
+
+/* ---------- Rendering ---------- */
+function navItem(screen,icon,label){
+ return `<button class="nav-item ${state.screen===screen?"active":""}" onclick="go('${screen}')">
+   <span class="nav-icon">${icon}</span>${label}</button>`;
+}
+function shell(content){
+ return `<div class="app">
+  <header class="topbar">
+   <div class="brand"><div class="logo">F</div><span>FlexiBlock</span></div>
+   <div class="top-actions">
+    <button class="icon-btn" onclick="openSettings()" aria-label="Settings">⚙</button>
+    <button class="icon-btn" onclick="logout()" aria-label="Log out">↪</button>
+   </div>
+  </header>
+  <main>${content}</main>
+  <nav class="bottom-nav"><div class="nav-inner">
+   ${navItem("home","⌂","Home")}${navItem("add","＋","Add Task")}${navItem("profile","●","Profile")}
+  </div></nav>
+ </div>`;
+}
+function render(){
+ if(!getSession()){renderLogin();return}
+ if(!db.getUser()){clearSession();renderLogin();return}
+ let c="";
+ if(state.screen==="home")c=home();
+ else if(state.screen==="add")c=taskForm();
+ else if(state.screen==="profile")c=profile();
+ else if(state.screen==="plan")c=plan();
+ else if(state.screen==="recovery")c=recovery();
+ else if(state.screen==="focus")c=focus();
+ else c=home();
+ $("#root").innerHTML=shell(c);updateFocusUI();
+}
+function renderLogin(){
+ $("#root").innerHTML=`<div class="login-wrap"><div class="login-card">
+  <div class="login-brand"><div class="login-logo">F</div>FlexiBlock</div>
+  <h1>${state.authMode==="login"?"Welcome back":"Create your account"}</h1>
+  <div class="lead">${state.authMode==="login"?"Your day can change. So can your plan.":"Create a local demo account and start adapting your day."}</div>
+  <div class="switch">
+   <button class="${state.authMode==="login"?"active":""}" onclick="setAuth('login')">Log In</button>
+   <button class="${state.authMode==="signup"?"active":""}" onclick="setAuth('signup')">Sign Up</button>
+  </div>
+  <form onsubmit="handleAuth(event)" novalidate>
+   <div class="field"><label for="authEmail">Email</label>
+    <input id="authEmail" type="email" required autocomplete="email" inputmode="email" placeholder="you@example.com"></div>
+   <div class="field"><label for="authPassword">Password</label>
+    <input id="authPassword" type="password" required minlength="6" autocomplete="${state.authMode==="login"?"current-password":"new-password"}" placeholder="At least 6 characters"></div>
+   <button class="primary" type="submit">${state.authMode==="login"?"Log In to FlexiBlock":"Create Account"}</button>
+  </form>
+  <div class="demo-note">Hackathon demo mode: account data is stored locally in this browser. No server is connected.</div>
+ </div></div>`;
+}
+function setAuth(mode){state.authMode=mode;render()}
+function handleAuth(e){
+ e.preventDefault();
+ const email=$("#authEmail").value.trim().toLowerCase(),password=$("#authPassword").value;
+ if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){toast("Enter a valid email address");return}
+ if(password.length<6){toast("Password must be at least 6 characters");return}
+ try{
+  if(state.authMode==="signup"){db.createUser(email,password);setSession(email);toast("Account created")}
+  else{db.authenticate(email,password);setSession(email);toast("Welcome back")}
+  state.screen="home";render();
+ }catch(err){
+  toast(err.message==="ACCOUNT_EXISTS"?"Account already exists — Log In instead":"Incorrect email or password");
+ }
+}
+function go(screen){
+ if(screen==="add")state.editingId=null;
+ state.screen=screen;render();window.scrollTo({top:0,behavior:"smooth"});
+}
+
+/* ---------- Home / Tasks ---------- */
+function home(){
+ const tasks=db.getTasks(),s=db.getSettings(),schedule=db.getSchedule();
+ return `<section class="screen">
+  <div class="hero"><div class="eyebrow">Adaptive daily planner</div>
+   <h1>Your day can change.<br>So can your plan.</h1>
+   <p>FlexiBlock protects what matters and rebuilds the rest when life disrupts your schedule.</p>
+  </div>
+  <div class="section-head"><h2>Today's tasks</h2><button class="link-btn" onclick="go('add')">＋ Add</button></div>
+  ${tasks.length?`<div class="task-list">${tasks.map(taskCard).join("")}</div>`:`<div class="empty">No tasks yet. Add your first task.</div>`}
+  <div style="height:12px"></div>
+  <div class="info"><b>Active hours:</b> ${timeLabel(parseTime(s.dayStart))} – ${timeLabel(parseTime(s.dayEnd))}</div>
+  <button class="primary" onclick="generatePlan()">✨ Generate My Day</button>
+  ${schedule.length?`<div style="height:9px"></div><button class="secondary" onclick="go('plan')">View saved plan</button>`:""}
+ </section>`;
+}
+function taskCard(t){
+ return `<article class="task-card">
+  <div class="dot ${esc(t.priority)}"></div><div class="task-main">
+   <div class="task-title">${esc(t.title)}</div>
+   <div class="task-meta">⏱ ${t.duration} min · ${esc(t.deadline)} · ${esc(t.status)}</div>
+   <div class="task-actions">
+    <button class="small-btn" onclick="editTask('${esc(t.id)}')">✎ Edit</button>
+    <button class="small-btn danger" onclick="confirmDelete('${esc(t.id)}')">🗑 Delete</button>
+   </div>
+  </div><span class="priority">${esc(t.priority)}</span>
+ </article>`;
+}
+function editTask(id){state.editingId=id;state.screen="add";render()}
+function taskForm(){
+ const t=state.editingId?db.getTask(state.editingId):null;
+ return `<section class="screen">
+  <div class="back-row"><h1 class="page-title">${t?"Edit task":"Add a task"}</h1><button class="link-btn" onclick="go('home')">Cancel</button></div>
+  <form class="form-card" onsubmit="saveTaskForm(event)" novalidate>
+   <div class="field"><label for="taskTitle">Task title</label>
+    <input id="taskTitle" maxlength="100" required value="${esc(t?.title||"")}" placeholder="e.g. Math Assignment"></div>
+   <div class="form-row">
+    <div class="field"><label for="taskDuration">Duration</label><select id="taskDuration">
+     ${[15,30,45,60,90,120,150,180,240].map(v=>`<option value="${v}" ${Number(t?.duration||30)===v?"selected":""}>${v} minutes</option>`).join("")}
+    </select></div>
+    <div class="field"><label for="taskPriority">Priority</label><select id="taskPriority">
+     ${["high","medium","low"].map(v=>`<option value="${v}" ${t?.priority===v?"selected":""}>${v[0].toUpperCase()+v.slice(1)}</option>`).join("")}
+    </select></div>
+   </div>
+   <div class="field"><label for="taskDeadline">Deadline</label><select id="taskDeadline">
+    ${["Today","Tomorrow","This week"].map(v=>`<option ${t?.deadline===v?"selected":""}>${v}</option>`).join("")}
+   </select></div>
+   <button class="primary">${t?"Save Changes":"Add Task"}</button>
+  </form>
+ </section>`;
+}
+function saveTaskForm(e){
+ e.preventDefault();
+ const title=$("#taskTitle").value.trim();
+ if(title.length<2){toast("Task title is too short");return}
+ try{
+  const base=state.editingId?db.getTask(state.editingId):{};
+  db.saveTask({...base,id:state.editingId||undefined,title,
+   duration:Number($("#taskDuration").value),priority:$("#taskPriority").value,deadline:$("#taskDeadline").value,
+   status:"pending",start_time:null});
+  state.editingId=null;state.screen="home";render();toast("✓ Task saved");
+ }catch(err){toast("Could not save task")}
+}
+function confirmDelete(id){
+ const t=db.getTask(id);if(!t)return;
+ $("#modalRoot").innerHTML=`<div class="modal-wrap" onclick="if(event.target===this)closeModal()"><div class="modal">
+  <h3>Delete task?</h3><p>“${esc(t.title)}” will be removed from your task list and saved schedule.</p>
+  <div class="modal-actions"><button class="secondary" onclick="closeModal()">Cancel</button>
+   <button class="primary" onclick="deleteTask('${esc(id)}')">Delete</button></div>
+ </div></div>`;
+}
+function closeModal(){$("#modalRoot").innerHTML=""}
+function deleteTask(id){
+ try{db.deleteTask(id);closeModal();render();toast("✓ Task deleted")}catch(e){toast("Could not delete task")}
+}
+
+/* ---------- Scheduling ---------- */
+function buildSchedule(tasks,start,end){
+ let cursor=start,schedule=[];
+ const ordered=[...tasks].sort((a,b)=>
+   priorityValue(b.priority)-priorityValue(a.priority)||
+   deadlineValue(b.deadline)-deadlineValue(a.deadline)||
+   Number(a.duration)-Number(b.duration));
+ ordered.forEach((t,i)=>{
+  if(i>0 && schedule.length && schedule[schedule.length-1].duration>=90)cursor+=15;
+  if(cursor+t.duration<=end){
+   schedule.push({id:uid("block"),task_id:t.id,user_id:t.user_id,title:t.title,duration:t.duration,
+    priority:t.priority,deadline:t.deadline,status:"planned",start_time:cursor,end_time:cursor+t.duration,created_at:isoNow()});
+   cursor+=t.duration;
+  }
+ });
+ return schedule;
+}
+function generatePlan(){
+ const tasks=db.getTasks(),b=settingsBounds();
+ if(!tasks.length){toast("Add a task first");go("add");return}
+ if(totalDuration(tasks)+Math.max(0,tasks.length-1)*15 > b.end-b.start){
+  // Still create the best-fit plan; conflicts will be visible during recovery.
+  toast("Some work may exceed your active hours");
+ }
+ const schedule=buildSchedule(tasks,b.start,b.end);
+ db.saveSchedule(schedule);
+ db.syncTaskSchedule(schedule);
+ state.screen="plan";state.missedId=null;state.recovery=null;render();toast("✓ Day planned");
+}
+function plan(){
+ const schedule=db.getSchedule(),b=settingsBounds();
+ return `<section class="screen">
+  <div class="back-row"><h1 class="page-title">Today's plan</h1><button class="link-btn" onclick="go('home')">← Tasks</button></div>
+  <div class="info">💡 <b>Adaptive mode:</b> tap a planned task to mark it missed. Recovery begins from that disruption and uses your active hours.</div>
+  ${schedule.length?`<div class="timeline">${schedule.map(planBlock).join("")}</div>`:`<div class="empty">No saved plan. Generate My Day first.</div>`}
+  <div style="height:10px"></div>
+  <div class="panel" style="font-size:10px;color:var(--muted)">Active window: <b>${timeLabel(b.start)} – ${timeLabel(b.end)}</b></div>
+  <div style="height:10px"></div><button class="primary" onclick="startFocus()">⚡ Start a 10-Minute Focus</button>
+ </section>`;
+}
+function planBlock(x){
+ const miss=x.status==="missed";
+ return `<div class="time-row"><div class="time-label">${timeLabel(x.start_time)}</div>
+  <div class="block clickable ${miss?"missed":""}" onclick="missTask('${esc(x.task_id)}')">
+   <div class="block-title">${esc(x.title)}</div>
+   <div class="block-meta">${timeLabel(x.start_time)} – ${timeLabel(x.end_time)} · ${x.duration} min · ${esc(x.priority)} priority · Due ${esc(x.deadline)}</div>
+   <span class="status-pill ${miss?"high":""}">${miss?"MISSED":"Tap to mark missed"}</span>
+  </div></div>`;
+}
+
+/* ---------- Recovery engine ---------- */
+function recoveryScore(task,missed,remaining){
+ let score=0,parts=[];
+ const p=priorityValue(task.priority)*25;score+=p;parts.push(`Priority +${p}`);
+ const d=deadlineValue(task.deadline)*15;score+=d;parts.push(`Deadline +${d}`);
+ const fit=task.duration<=remaining?20:Math.max(0,20-Math.ceil((task.duration-remaining)/5));score+=fit;parts.push(`Fit +${fit}`);
+ if(task.id===missed.task_id){score+=12;parts.push("Missed +12")}
+ if(task.deadline==="Today"){score+=8;parts.push("Today +8")}
+ return {score,parts};
+}
+function makeRecovery(missedId){
+ const schedule=db.getSchedule(),tasks=db.getTasks(),missed=schedule.find(x=>x.task_id===missedId);
+ if(!missed)return null;
+ const b=settingsBounds(),start=Math.max(b.start,Number(missed.start_time)),remaining=Math.max(0,b.end-start);
+ // Recover only unfinished work at/after the disruption.
+ // Blocks that already happened stay untouched.
+ const scheduledAfter = new Set(
+   schedule.filter(x=>Number(x.start_time)>=Number(missed.start_time) && x.task_id!==missedId)
+           .map(x=>x.task_id)
+ );
+ const scheduledIds = new Set(schedule.map(x=>x.task_id));
+ const candidates=tasks.filter(t=>t.id!==missedId && (scheduledAfter.has(t.id) || !scheduledIds.has(t.id)));
+ const scored=candidates.map(t=>({task:t,...recoveryScore(t,missed,remaining)}));
+ const missedTask=tasks.find(t=>t.id===missedId);
+ if(missedTask)scored.push({task:missedTask,...recoveryScore(missedTask,missed,remaining)});
+ scored.sort((a,b)=>b.score-a.score||priorityValue(b.task.priority)-priorityValue(a.task.priority));
+ let cursor=start,recovered=[],conflict=[],used=0;
+ for(const x of scored){
+  const t=x.task;
+  if(recovered.length && recovered[recovered.length-1].duration>=90)cursor+=15;
+  if(cursor+t.duration<=b.end){
+   recovered.push({block_id:uid("recovery"),task_id:t.id,user_id:t.user_id,title:t.title,duration:t.duration,
+    priority:t.priority,deadline:t.deadline,status:"recovered",start_time:cursor,end_time:cursor+t.duration,
+    score:x.score,parts:x.parts});
+   used+=t.duration;cursor+=t.duration;
+  }else conflict.push(t);
+ }
+ return {missed,recovered,conflict,start,remaining,used,end:b.end};
+}
+function missTask(id){
+ const schedule=db.getSchedule(),item=schedule.find(x=>x.task_id===id);
+ if(!item){toast("Task not found");return}
+ if(item.status==="missed"){toast("This task is already marked missed");return}
+ const updated=schedule.map(x=>x.task_id===id?{...x,status:"missed"}:x);
+ db.saveSchedule(updated);
+ state.missedId=id;state.recovery=makeRecovery(id);state.screen="recovery";render();
+}
+function recoveryReason(x){
+ const isMiss=x.task_id===state.missedId;
+ const protectedTask=x.priority==="high"&&x.deadline==="Today";
+ const tag=isMiss?"rescheduled":protectedTask?"protected":"rescheduled";
+ const tagText=isMiss?"RESCHEDULED":protectedTask?"PROTECTED":"RESCHEDULED";
+ const why=isMiss?`Missed block preserved in full (${x.duration} min) and moved to ${timeLabel(x.start_time)}.`
+  :protectedTask?"Protected because it is high priority and due today."
+  :`Placed after higher-urgency work because its recovery score is ${x.score}.`;
+ return `<div class="reason"><div class="reason-top"><div class="reason-name">${esc(x.title)}</div>
+  <span class="tag ${tag}">${tagText}</span></div>
+  <div class="score">Recovery score: <b>${x.score}</b> · ${timeLabel(x.start_time)}–${timeLabel(x.end_time)}</div>
+  <div class="why">${esc(why)}<br><span>${x.parts.map(esc).join(" · ")}</span></div></div>`;
+}
+function recovery(){
+ const r=state.recovery||makeRecovery(state.missedId);
+ if(!r)return `<section class="screen"><div class="empty">Recovery data unavailable.</div></section>`;
+ const high=r.recovered.filter(x=>x.priority==="high").length,today=r.recovered.filter(x=>x.deadline==="Today").length;
+ return `<section class="screen">
+  <div class="back-row"><h1 class="page-title">AI Recovery</h1><button class="link-btn" onclick="go('plan')">← Plan</button></div>
+  <div class="recovery-hero"><div class="eyebrow" style="color:var(--primary)">Adaptive recovery</div>
+   <h2>⚡ Your day has been intelligently adjusted</h2>
+   <div style="font-size:10px;color:var(--muted);line-height:1.5">Recovery starts at ${timeLabel(r.start)} and ends at ${timeLabel(r.end)}. The engine protects urgency, preserves the missed block, and surfaces overflow honestly.</div>
+  </div>
+  <div class="info"><b>Recovery engine:</b> priority + deadline + duration fit + missed-task weight. Scores are explainable, not random.</div>
+  <div class="metrics"><div class="metric"><strong>${high}</strong><span>High priority</span></div>
+   <div class="metric"><strong>${today}</strong><span>Due today</span></div><div class="metric"><strong>${Math.round(r.used/6)/10}h</strong><span>Rebuilt work</span></div></div>
+  <div class="section-head"><h2>Why this recovery?</h2></div>
+  <div class="reason-list">${r.recovered.map(recoveryReason).join("")}</div>
+  ${r.conflict.length?`<div style="height:9px"></div><div class="conflict"><b>⚠ Capacity conflict detected</b><br>
+    ${r.conflict.map(t=>esc(t.title)).join(", ")} could not fit before ${timeLabel(r.end)}.
+    <div class="conflict-actions"><button class="secondary" onclick="postponeConflicts()">Postpone Conflict Tasks to Tomorrow</button></div>
+   </div>`:""}
+  <div style="height:13px"></div><button class="primary" onclick="applyRecovery()">Apply Recovery</button>
+  <div style="height:8px"></div><button class="secondary" onclick="go('plan')">Keep current plan</button>
+ </section>`;
+}
+function applyRecovery(){
+ const r=state.recovery;if(!r){toast("Nothing to apply");return}
+ const current=db.getSchedule(),before=r.start,recoveredBy=new Map(r.recovered.map(x=>[x.task_id,x]));
+ const out=current.map(x=>{
+  if(x.start_time<before && x.task_id!==state.missedId)return {...x,status:"planned"};
+  const rec=recoveredBy.get(x.task_id);
+  return rec?{...x,start_time:rec.start_time,end_time:rec.end_time,status:"planned"}:x;
+ });
+ r.recovered.forEach(x=>{
+  if(!out.some(y=>y.task_id===x.task_id))out.push({...x,status:"planned",id:uid("block")});
+ });
+ db.saveSchedule(out);
+ db.syncTaskSchedule(out);
+ state.screen="plan";state.recovery=null;state.missedId=null;render();toast("✓ Recovery applied — plan updated");
+}
+function postponeConflicts(){
+ const r=state.recovery;if(!r||!r.conflict.length)return;
+ r.conflict.forEach(t=>db.updateTask(t.id,{status:"postponed",start_time:null}));
+// Remove conflicts from today's schedule.
+ const ids=new Set(r.conflict.map(t=>t.id));
+ db.saveSchedule(db.getSchedule().filter(x=>!ids.has(x.task_id)));
+ state.recovery={...r,conflict:[]};render();toast("✓ Conflict tasks postponed to tomorrow");
+}
+
+/* ---------- Settings / Active hours ---------- */
+function openSettings(){
+ const s=db.getSettings();
+ $("#modalRoot").innerHTML=`<div class="modal-wrap" onclick="if(event.target===this)closeModal()"><div class="modal">
+  <h3>⚙ Active hours</h3><p>FlexiBlock will use these bounds for both the daily planner and recovery engine.</p>
+  <form onsubmit="saveSettings(event)">
+   <div class="settings-grid"><div class="field"><label for="dayStart">Start time</label><input id="dayStart" type="time" value="${esc(s.dayStart)}" required></div>
+   <div class="field"><label for="dayEnd">End time</label><input id="dayEnd" type="time" value="${esc(s.dayEnd)}" required></div></div>
+   <div class="info">Choose at least ${MIN_WORK_MINUTES} minutes of active time.</div>
+   <div class="modal-actions"><button type="button" class="secondary" onclick="closeModal()">Cancel</button><button class="primary">Save Hours</button></div>
+  </form>
+ </div></div>`;
+}
+function saveSettings(e){
+ e.preventDefault();const start=$("#dayStart").value,end=$("#dayEnd").value;
+ if(parseTime(start)>=parseTime(end)){toast("End time must be after start time");return}
+ if(parseTime(end)-parseTime(start)<MIN_WORK_MINUTES){toast("Active hours must be at least 1 hour");return}
+ db.saveSettings({dayStart:start,dayEnd:end});
+ closeModal();toast("✓ Active hours saved");
+ render();
+}
+
+/* ---------- Profile ---------- */
+function profile(){
+ const u=db.getUser(),s=db.getSettings(),tasks=db.getTasks(),schedule=db.getSchedule();
+ return `<section class="screen"><div class="back-row"><h1 class="page-title">Profile & Settings</h1></div>
+  <div class="form-card profile"><div class="profile-card"><div class="avatar">${esc((u.email||"U")[0].toUpperCase())}</div>
+   <div><div class="profile-name">${esc(u.email)}</div><div class="profile-sub">Local FlexiBlock account</div></div></div>
+   <div class="setting-row"><div class="setting-label">Tasks saved</div><div class="setting-value">${tasks.length}</div></div>
+   <div class="setting-row"><div class="setting-label">Saved schedule</div><div class="setting-value">${schedule.length?"Available":"Not generated"}</div></div>
+   <div class="setting-row"><div class="setting-label">Active hours</div><div class="setting-value">${timeLabel(parseTime(s.dayStart))} – ${timeLabel(parseTime(s.dayEnd))}</div></div>
+   <div class="setting-row"><div class="setting-label">Storage</div><div class="setting-value">localStorage</div></div>
+  </div><div style="height:10px"></div><button class="secondary" onclick="openSettings()">⚙ Change Active Hours</button>
+  <div style="height:9px"></div><button class="danger-btn" onclick="logout()">↪ Log Out</button>
+ </section>`;
+}
+function logout(){
+ if(state.focusTimer)clearInterval(state.focusTimer);
+ clearSession();state={screen:"home",authMode:"login",editingId:null,missedId:null,recovery:null,focusSeconds:600,focusTimer:null,focusRunning:false};
+ render();toast("Logged out");
+}
+
+/* ---------- Focus timer ---------- */
+function startFocus(){state.screen="focus";state.focusSeconds=600;state.focusRunning=false;state.focusTimer=null;render()}
+function focus(){
+ return `<section class="screen"><div class="back-row"><h1 class="page-title">10-Minute Focus</h1>
+  <button class="link-btn" onclick="stopFocusAndGoHome()">← Home</button></div>
+  <div class="focus-card"><div class="eyebrow">Deep work sprint</div>
+   <div id="focusRing" class="ring" style="--progress:${focusProgress()}">
+    <div class="ring-content"><div id="focusTimer" class="timer">10:00</div><div style="font-size:9px;color:#bfc2ce">remaining</div></div>
+   </div>
+   <p>One small block. Start now, keep moving.</p>
+   <div class="focus-actions">
+    <button class="secondary" onclick="toggleFocus()">${state.focusRunning?"Ⅱ Pause":"▶ "+(state.focusSeconds<600?"Resume":"Start")}</button>
+    <button class="secondary" onclick="resetFocus()">↻ Reset</button>
+    <button class="secondary reset" onclick="stopFocusAndGoHome()">Finish Focus</button>
+   </div>
+  </div>
+ </section>`;
+}
+function focusProgress(){return Math.max(0,Math.min(100,(1-state.focusSeconds/600)*100))}
+function updateFocusUI(){
+ const timer=$("#focusTimer"),ring=$("#focusRing");if(!timer)return;
+ const m=Math.floor(state.focusSeconds/60),s=state.focusSeconds%60;
+ timer.textContent=`${m}:${String(s).padStart(2,"0")}`;
+ ring.style.setProperty("--progress",focusProgress());
+}
+function toggleFocus(){
+ if(state.focusRunning){
+  clearInterval(state.focusTimer);state.focusTimer=null;state.focusRunning=false;render();return;
+ }
+ state.focusRunning=true;
+ state.focusTimer=setInterval(()=>{
+  state.focusSeconds=Math.max(0,state.focusSeconds-1);
+  updateFocusUI();
+  if(state.focusSeconds===0){
+   clearInterval(state.focusTimer);state.focusTimer=null;state.focusRunning=false;render();toast("🎉 Focus sprint complete!");
+  }
+ },1000);
+ updateFocusUI();
+}
+function resetFocus(){
+ if(state.focusTimer)clearInterval(state.focusTimer);
+ state.focusTimer=null;state.focusRunning=false;state.focusSeconds=600;render();toast("Focus timer reset");
+}
+function stopFocusAndGoHome(){
+ if(state.focusTimer)clearInterval(state.focusTimer);
+ state.focusTimer=null;state.focusRunning=false;state.screen="home";render();
+}
+window.addEventListener("beforeunload",()=>{if(state.focusTimer)clearInterval(state.focusTimer)});
+
+/* ---------- Boot ---------- */
+render();
+</script>
+</body>
+</html>
